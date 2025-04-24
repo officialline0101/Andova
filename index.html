@@ -63,6 +63,7 @@
             box-sizing: border-box;
         }
 
+        .store-buttons,
         .priority-buttons,
         .demand-buttons,
         .chance-buttons,
@@ -76,6 +77,7 @@
             margin-bottom: 20px;
         }
 
+        .store-buttons button,
         .priority-buttons button,
         .demand-buttons button,
         .chance-buttons button,
@@ -94,6 +96,7 @@
             white-space: nowrap;
         }
 
+        .store-buttons button.active,
         .priority-buttons button.active,
         .demand-buttons button.active,
         .chance-buttons button.active,
@@ -260,6 +263,12 @@
     <div class="container">
         <h1>Andova<br>カウンセリングシート</h1>
         <div class="info-text">以下全て入力後【アンケート送信】ボタンを押してください。</div>
+        <div class="label">どちらの店舗をご利用いただいていますか？</div>
+        <div class="store-buttons">
+            <button type="button" id="onestore" onclick="selectstore(this)">大通り店</button>
+            <button type="button" id="twostore" onclick="selectstore(this)">ピヴォクロス店</button>
+        </div>
+
         <div class="label">ご来店日(例:西暦記載 ○年○月○日)</div>
         <textarea id="message" rows="1" placeholder="入力してください"></textarea> <!-- メッセージ入力フィールド -->
 
@@ -346,6 +355,7 @@
     <script src="https://static.line-scdn.net/liff/edge/2.1/sdk.js"></script> <!-- LIFF SDKの読み込み -->
     <script>
         let priorityCount = '';
+        let storeCount = '';
         let demandCount = '';
         let chanceCount = '';
         let IntroductionCount = '';
@@ -376,6 +386,16 @@
             if (!input.value) {
                 document.getElementById(placeholderId).style.display = 'inline';
             }
+        }
+
+        function selectstore(element) {
+            // 単一選択項目の処理コード
+            const buttons = document.querySelectorAll('.store-buttons button');
+            buttons.forEach(button => button.classList.remove('active'));
+
+            // 選択されたボタンだけにactiveクラスを追加
+            element.classList.add('active');
+            storeCount = element.innerText;
         }
 
         function selectpriority(element) {
@@ -447,6 +467,7 @@
             const message6 = document.getElementById('message6').value;
             const message7 = document.getElementById('message7').value;
             const message8 = document.getElementById('message8').value;
+            storeCount: storeCount;
             priorityCount: priorityCount;
             demandCount: demandCount;
             chanceCount: chanceCount;
@@ -463,6 +484,7 @@
                 message6,
                 message7,
                 message8,
+                storeCount,
                 priorityCount,
                 demandCount,
                 chanceCount,
@@ -514,6 +536,12 @@
             }
 
             // フォームデータのチェック
+            if (!formData.storeCount) {
+                alert('ご職業をご選択ください。');
+                return;
+            }
+
+            // フォームデータのチェック
             if (!formData.priorityCount) {
                 alert('ご職業をご選択ください。');
                 return;
@@ -552,7 +580,7 @@
             // LINEトークにメッセージを送信
             liff.sendMessages([{
                 type: 'text',
-                text: `≪アンケート≫\n【ご来店日】\n・${formData.message}\n\n【お名前(漢字)】\n・${formData.message2}\n\n【お名前(ふりがな)】\n・${formData.message6}\n\n【生年月日】\n・${formData.message3}\n\n【電話番号】\n・${formData.message4}\n\n【お住まい】\n・${formData.message5}\n\n【ご職業】\n・${formData.priorityCount}\n\n【来店動機】\n・${formData.demandCount}\n\n【知人の紹介名】\n・${formData.message7}\n\n【来店頻度】\n・${formData.chanceCount}\n\n【過去施術】\n・${formData.IntroductionCount}\n\n【薬品/ネイルでのアレルギー】\n・${formData.deliveryCount}\n\n【長さ出し左右本数】\n・${formData.message8}\n\n【重要項目の同意】\n・${formData.budgetyCount}`
+                text: `≪アンケート≫\n【店舗】\n・${formData.storeCount}\n\n【ご来店日】\n・${formData.message}\n\n【お名前(漢字)】\n・${formData.message2}\n\n【お名前(ふりがな)】\n・${formData.message6}\n\n【生年月日】\n・${formData.message3}\n\n【電話番号】\n・${formData.message4}\n\n【お住まい】\n・${formData.message5}\n\n【ご職業】\n・${formData.priorityCount}\n\n【来店動機】\n・${formData.demandCount}\n\n【知人の紹介名】\n・${formData.message7}\n\n【来店頻度】\n・${formData.chanceCount}\n\n【過去施術】\n・${formData.IntroductionCount}\n\n【薬品/ネイルでのアレルギー】\n・${formData.deliveryCount}\n\n【長さ出し左右本数】\n・${formData.message8}\n\n【重要項目の同意】\n・${formData.budgetyCount}`
             }]).then(() => {
                 /* メッセージ送信成功時の処理 */
                 alert('カウンセリングシートのご記入と、重要事項へのご同意、ありがとうございました。');
